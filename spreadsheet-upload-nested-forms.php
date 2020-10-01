@@ -7,7 +7,8 @@
 
 require 'class-gpnf-session-override.php';
 
-//Parent form => [Parent Form ID, Nested Form Field ID, Nested Form ID, CSV Upload Form ID]
+// all your forms that use CSV:
+// [Parent Form ID, Nested Form Field ID, Nested Form ID, CSV Upload Form ID (you have to create one)]
 $csv_forms = [
 	[2, 77, 11, 16],
 	[12, 101, 13, 17],
@@ -22,6 +23,7 @@ add_action("wp_enqueue_scripts", function() use($csv_forms){
 	wp_enqueue_script("csv-upload");
 });
 
+//Change button: CSS class and label
 function csv_button($args){
 	$args["add_button"] .= ' <button type="button" class="gpnf-csv-upload"
 		        data-bind="attr: { disabled: isMaxed }">
@@ -29,13 +31,14 @@ function csv_button($args){
 			</button>';
 	return $args;
 }
+
+//A separate function for each nested form field
 function csv_upload_101($form){
-	$csv_branches = [];
-	$session = new GPNF_CSV_Session(12);
-	$path = $GLOBALS["csv_path"] . sanitize_file_name($_FILES["input_1"]["name"]);
+	$session = new GPNF_CSV_Session(12); //Change to parent form ID
+	$path = $GLOBALS["csv_path"] . sanitize_file_name($_FILES["input_1"]["name"]); //Change file upload field ID
 	
 	$lines = file($path);
-	if(!empty(rgpost("input_3_1"))) array_shift($lines);
+	if(!empty(rgpost("input_3_1"))) array_shift($lines); //Change checkbox field ID which allows to ignore the first line
 	foreach($lines as $csv_entry){
 		$csv_entry = trim($csv_entry);
 		if(empty($csv_entry)) continue;
@@ -43,18 +46,18 @@ function csv_upload_101($form){
 		if(preg_match('//u', $csv_entry) === false){ //If there are non-UTF-8 chars, encode them
 			$csv_entry = utf8_encode($csv_entry);
 		}
-		$csv_arr = explode(";", $csv_entry);
+		$csv_arr = explode(";", $csv_entry); //Change selector
 		
 		$e = [
-			"form_id"=>13,
+			"form_id"=>13, //Change to nested form ID
 			"created_by"=>get_current_user_id(),
 			
-			"1"=>"" //Form fields			
+			"1"=>$csv_entry[0] //Map CSV fields to form fields, look in the database and form creator
 		];
 		
 		//Invoke action
 		$post_cache = $_POST;
-		do_action('gform_pre_submission_13',GFAPI::get_form(13));
+		do_action('gform_pre_submission_13',GFAPI::get_form(13)); //Change to nested form ID
 		$new_keys = array_diff_key($_POST, $post_cache);
 		foreach(array_keys($_POST) as $inp){
 			if(preg_match("/^input_([0-9]+)(_[0-9]+)?/", $inp, $m)){
@@ -65,8 +68,8 @@ function csv_upload_101($form){
 		$entry_id = GFAPI::add_entry($e);
 		
 		$entry = new GPNF_Entry(GFAPI::get_entry($entry_id));
-		$entry->set_parent_form(12);
-		$entry->set_nested_form_field(101);
+		$entry->set_parent_form(12); //Change to parent form ID
+		$entry->set_nested_form_field(101); //Change to nested form field ID
 		$entry->set_expiration();
 		
 		$session->add_child_entry($entry_id);
