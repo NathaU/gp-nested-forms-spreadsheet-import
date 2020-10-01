@@ -14,7 +14,7 @@ $csv_forms = [
 ];
 
 add_action("wp_enqueue_scripts", function() use($csv_forms){
-	wp_register_script("csv-upload", plugin_dir_url(__FILE__)."csv-upload.js");
+	wp_register_script("csv-upload", plugin_dir_url(__FILE__)."spreadsheet-upload.js");
 	foreach($csv_forms as &$arr){
 		$arr[4] = gravity_form($arr[3], false, false, true, null, false, 0, false);
 	}
