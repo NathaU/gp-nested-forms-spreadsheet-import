@@ -11,11 +11,13 @@ $(document).ready(function(){
 				closeLabel: "Cancel",
 				cssClass: ['gpnf-modal'],
 			});
-
+			
+			//Change header
 			modal.setContent("<div class='gpnf-modal-header'>CSV Upload</div>"+CSVUpload.forms[i][4]);
 			
 			modal.csvformid = CSVUpload.forms[i][3];
 			
+			//Change labels
 			modal.addFooterBtn("Cancel", "tingle-btn tingle-btn--danger", function(){
 				modal.close();
 			});
@@ -23,6 +25,7 @@ $(document).ready(function(){
 				document.getElementById("gform_"+modal.csvformid).submit();
 			});
 			
+			//Change CSS class
 			$("#gform_"+CSVUpload.forms[i][0]+" .gpnf-csv-upload").on("click", function(){
 				modal.open();
 			});
